@@ -11,27 +11,26 @@ function App() {
       return;
     }
     console.log("🎏 Thời gian ở Client khi user vừa nhập: " + datetime);
-
+  
     const res = await fetch("http://localhost:4004/save", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ datetime }).toString(), 
     });
-    const data = await res.json();
-
-    setRecords((prev) => [
-      ...prev,
-      {
-        id: data.id,
-        clientTime: datetime,           // giữ nguyên giờ client
-        backendReceived: data.backendReceived, // giờ backend nhận
-        withTZ: data.ts_with_tz,
-        withoutTZ: data.ts_without_tz,
-      },
-    ]);
-
     
-    // fetchTimes();
+    if (res.ok) {
+      const responseText = await res.text();
+      const data = Object.fromEntries(new URLSearchParams(responseText));
+      
+      if (data.success === "true") {
+        // Chỉ cần refresh lại data từ DB
+        fetchTimes();
+        // Reset form nếu muốn
+        setDatetime("");
+      }
+    } else {
+      alert("Lưu thất bại!");
+    }
   };
 
 
@@ -61,12 +60,22 @@ function App() {
   // Fetch dữ liệu từ DB để hiển thị
   const fetchTimes = async () => {
     const res = await fetch("http://localhost:4004/times");
-    const dbData = await res.json();
-    // const newTime = new Date(dbData[0].ts_with_tz);
-    // console.log("+ Thoi gian da convert: " + newTime);
-    console.log("🈯️ Dữ liệu từ Server trả về Client: " + dbData);
-
-
+    const responseText = await res.text();
+    const parsedData = Object.fromEntries(new URLSearchParams(responseText));
+    
+    // Parse dữ liệu từ form-encoded format
+    const count = parseInt(parsedData.count) || 0;
+    const dbData = [];
+    
+    for (let i = 0; i < count; i++) {
+      dbData.push({
+        id: parsedData[`id_${i}`],
+        ts_with_tz: parsedData[`ts_with_tz_${i}`],
+        ts_without_tz: parsedData[`ts_without_tz_${i}`]
+      });
+    }
+    
+    console.log("🈯️ Dữ liệu từ Server trả về Client: ", dbData);
 
     const enriched = dbData.map((r) => ({
       id: r.id,
