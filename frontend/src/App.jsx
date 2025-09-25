@@ -10,6 +10,7 @@ function App() {
       alert("Vui lòng chọn ngày giờ!");
       return;
     }
+    console.log("🎏 Thời gian ở Client khi user vừa nhập: " + datetime);
 
     const res = await fetch("http://localhost:4004/save", {
       method: "POST",
@@ -28,7 +29,16 @@ function App() {
         withoutTZ: data.ts_without_tz,
       },
     ]);
+
+    
+    // fetchTimes();
   };
+
+
+
+
+
+
 
   //delete function
   const deleteTime = async(id) => {
@@ -43,21 +53,27 @@ function App() {
     }
   }
 
+
+
+
+
+
   // Fetch dữ liệu từ DB để hiển thị
   const fetchTimes = async () => {
     const res = await fetch("http://localhost:4004/times");
     const dbData = await res.json();
     // const newTime = new Date(dbData[0].ts_with_tz);
     // console.log("+ Thoi gian da convert: " + newTime);
+    console.log("🈯️ Dữ liệu từ Server trả về Client: " + dbData);
+
 
 
     const enriched = dbData.map((r) => ({
       id: r.id,
-      clientTime: r.client_time || "",        // nếu backend lưu client_time, dùng luôn
-      backendReceived: r.backend_received || "", // nếu backend lưu backend_received
-      //withTZ: r.ts_with_tz,
-      withTZ: new Date(r.ts_with_tz).toString(), 
-      withoutTZ: new Date(r.ts_without_tz).toString(),
+      clientTime: r.client_time || "",        
+      backendReceived: r.backend_received || "", 
+      withTZ: r.ts_with_tz,
+      withoutTZ: r.ts_without_tz
     }));
 
     setRecords(enriched);
@@ -67,6 +83,16 @@ function App() {
     fetchTimes();
   }, []);
 
+
+
+
+
+
+
+
+
+
+  
   return (
     <div style={{ padding: "20px" }}>
       <h2>🔍 So sánh thời gian</h2>
