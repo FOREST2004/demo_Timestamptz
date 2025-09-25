@@ -8,7 +8,8 @@ process.env.TZ = "Asia/Dubai";
 
 const { Pool, types } = pkg;
 const app = express();
-app.use(bodyParser.json());
+// app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true })); // Xử lý application/x-www-form-urlencoded
 app.use(cors());
 
 

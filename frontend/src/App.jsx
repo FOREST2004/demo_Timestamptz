@@ -14,8 +14,8 @@ function App() {
 
     const res = await fetch("http://localhost:4004/save", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ datetime }), 
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ datetime }).toString(), 
     });
     const data = await res.json();
 
